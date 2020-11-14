@@ -1,0 +1,4 @@
+Show members of a group:
+
+PowerShell - Get-ADGroupMember <group name>|select name
+dsget group "CN=AG_SecretShopper_AllStoreReports,OU=ApplicationGroups,OU=AllGroups,DC=WAWA,DC=com" -members
