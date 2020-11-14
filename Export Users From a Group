@@ -1,0 +1,6 @@
+Export Users From a Group
+This will export group members to a CSV, change group-name to the group you want to export.
+
+Get-ADGroupMember -identity “BP_CallCenterAnalyst” | select name | Export-csv -path C:BP_CallCenterAnalyst.csv -NoTypeInformation
+
+windows  system 32
