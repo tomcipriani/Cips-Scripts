@@ -1,0 +1,7 @@
+Find users from a list of smtp addresses:
+ 
+Get-Content C:\lists\e-mails.txt | %{Get-ADUser -Filter {mail -like $_} -Properties *} | ft name, displayName, eduPersonPrimaryAffiliation, PasswordLastSet -AutoSize
+ 
+Find group names & descriptions with a list of groups
+ 
+Get-Content C:\lists\lpgroups.txt | %{Get-ADGroup -Filter {name -like $_} -Properties *} | ft name, description -AutoSize
