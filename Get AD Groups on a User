@@ -1,0 +1,1 @@
+(get-aduser wcw101015 -Properties MemberOf | select MemberOf).MemberOf | % {$_.split(",")[0].replace("CN=","")}
