@@ -1,0 +1,23 @@
+Import-Module ActiveDirectory
+function Get-LastLogonEvents
+{
+$dcs = Get-ADDomainController -Filter {Name -like "*"}
+$users = Get-ADUser -Filter *
+$time = 0
+foreach($user in $users)
+{
+foreach($dc in $dcs)
+{
+$hostname = $dc.HostName
+$currentUser = Get-ADUser $user.SamAccountName | Get-ADObject -Server $hostname -Properties lastLogon
+if($currentUser.LastLogon -gt $time)
+{
+$time = $currentUser.LastLogon
+}
+$dt = [DateTime]::FromFileTime($time)
+Write-Host $currentUser "last logged on at:" $dt
+$time = 0
+}
+}
+}
+Get-LastLogonEvents | Export-CSV = -Path "C:\alluser_reports_brief.csv"
