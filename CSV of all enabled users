@@ -1,1 +1,4 @@
 Get-ADUser -Properties * -Filter {Enabled -eq 'True'} | Select-Object @{Label = "Email";Expression = {$_.EmailAddress}}, @{Label = "First Name";Expression = {$_.GivenName}}, @{Label = "Last Name";Expression = {$_.Surname}}, @{Label = "Group";Expression = {($_.canonicalname -Split "/")[-2]}} | Export-Csv -Path users.csv -NoTypeInformation
+
+
+.
