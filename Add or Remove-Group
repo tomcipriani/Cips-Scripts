@@ -1,0 +1,5 @@
+Add-ADGroupMember SecurityGroupName -Members Username01
+
+<<<simple add and removes>>>>>>>>>>>>>>>
+
+Remove-ADGroupMember SecurityGroupName -Members Username01
