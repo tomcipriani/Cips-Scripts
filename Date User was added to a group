@@ -1,0 +1,71 @@
+<# 
+        .SYNOPSIS 
+            Provides the date that a member was added to a specified Active Directory group. 
+         
+        .DESCRIPTION 
+            Provides the date that a member was added to a specified Active Directory group. 
+         
+        .PARAMETER Group 
+            The group that will be inspected for members and date added. If a distinguished name (dn) is not used, 
+            an attempt to get the dn before making the query. 
+         
+        .PARAMETER DomainController 
+            Name of the domain controller to query. Optional parameter. 
+         
+        .NOTES 
+            Name: Get-ADGroupMemberDate 
+            Author: Tom Cip 
+            DateCreated: November 11th 2020 
+            Version 1.0 
+ 
+            The State property will be one of the following: 
+ 
+            PRESENT: User currently exists in group and the replicated using Linked Value Replication (LVR). 
+            ABSENT: User has been removed from group and has not been garbage collected based on Tombstone Lifetime (TSL). 
+            LEGACY: User currently exists as a member of the group but has no replication data via LVR. 
+         
+        .EXAMPLE 
+            Get-ADGroupMemberDate -Group "Domain Admins" -DomainController DC3 
+ 
+            ModifiedCount    : 2 
+            DomainController : DC3 
+            LastModified     : 11/4/2020 6:48:06 PM 
+            Username         : joesmith 
+            State            : ABSENT 
+            Group            : CN=Domain Admins,CN=Users,DC=Domain,DC=Com 
+ 
+            ModifiedCount    : 1 
+            DomainController : DC3 
+            LastModified     : 11/6/2020 7:36:08 AM 
+            Username         : adminuser 
+            State            : PRESENT 
+            Group            : CN=Domain Admins,CN=Users,DC=Domain,DC=Com 
+            ... 
+ 
+            Description 
+            ----------- 
+            This lists out all of the members of Domain Admins using DC3 as the Domain Controller. 
+         
+        .EXAMPLE 
+            Get-ADGroup -Identity "TestGroup" | Get-ADGroupMemberDate 
+ 
+            ModifiedCount    : 2 
+            DomainController : DC1 
+            LastModified     : 11/4/2020 6:48:06 PM 
+            Username         : joesmith 
+            State            : ABSENT 
+            Group            : CN=TestGroup,OU=Groups,DC=Domain,DC=Com 
+ 
+            ModifiedCount    : 1 
+            DomainController : DC1 
+            LastModified     : 11/6/2020 7:36:08 AM 
+            Username         : bobsmith 
+            State            : PRESENT 
+            Group            : CN=TestGroup,OU=Groups,DC=Domain,DC=Com 
+            ... 
+ 
+            Description 
+            ----------- 
+            This lists out all of the members of TestGroup from the output of Get-ADGroup and auto-selecting DC1 as the Domain Controller. 
+ 
+    #>
