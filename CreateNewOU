@@ -1,0 +1,1 @@
+New-ADOrganizationalUnit -Name "OU Name" -Path "DC=Domain,DC=com"
