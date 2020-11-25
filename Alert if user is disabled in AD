@@ -1,0 +1,17 @@
+$scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+$base = Get-Content $scriptDir\Users.txt
+$groups = @("Corp_Employees","Corp_Contractors","Corp_Interns")
+ 
+foreach ($g in $groups) {
+   $diff += (Get-ADGroupMember -Identity $g).sAMAccountName
+}
+  
+$result = (Compare-Object -ReferenceObject $base -DifferenceObject $diff | Where-Object {$_.SideIndicator -eq "<="} | Select-Object -ExpandProperty InputObject) -join ", "
+ 
+If ($result) {
+   $tolist = admin1@company.com, admin2@company.com
+   $subject = "Alert - User Account Flagged"
+   $body = "Attention, <code>n</code>n The following users were not found in Active Directory: $result <code>n</code>n Please verify employment status and remove access if necessary."
+   Send-MailMessage -From noreply@company.com -To $tolist   -SmtpServer smtp.company.com -Subject $subject -Body $body -Priority High
+}
+Exit
