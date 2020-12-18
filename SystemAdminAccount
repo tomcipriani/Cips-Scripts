@@ -1,0 +1,85 @@
+<#	
+	.NOTES
+	===========================================================================
+	 Created with: 	SAPIEN Technologies, Inc., PowerShell Studio 2020 v5.7.181
+	 Created on:   	11/4/2020 8:39 AM
+	 Created by:   	CiprianoThomas
+	 Organization: 	
+	 Filename:     	Create_SA_Account.ps1	
+	===========================================================================
+	.DESCRIPTION
+		This script creates an SA account for a user with some standard settings
+
+		This is a convienence.
+
+		There is little-to-no error checking, if an error shows up on the screen,
+		it should be assumed there is a failure and should be checked manually.
+#>
+
+$SA_OU = "OU=AdminAccounts,OU=Corporate Users,DC=Wawa,DC=com"
+
+#Create SA account
+Write-Host "This script creates an SA_ Account for a given username."
+Write-Host "It configures some of the user attributes to match thre actual user."
+write-host "It adds the new SA_ account to the minumum required groups"
+$Username = Read-Host -Prompt "Enter regular username"
+
+Write-Host "Checking if user and/or SA_ account exists...."
+$User = Get-ADUser $Username -prop *
+If ($User -eq $null)
+{ Write-Host "User no found.  Maybe you have fat fingers?" }
+else
+{
+	Write-Host "$Username found..."
+}
+$SAName = "SA_$Username"
+try { $SAUser = Get-ADUser $SAName -prop * -ErrorAction SilentlyContinue }
+catch {"oops"}
+If ($SAUser -ne $Null)
+{
+	Write-Host  "The account named $($SAUser.samaccountnamt) already exists."
+	exit
+}
+Else
+{
+	add-type -AssemblyName System.Web
+	$rando = [System.Web.security.membership]::GeneratePassword(16,2)
+	$newpassword = (ConvertTo-SecureString -AsPlainText $rando -force)
+	Write-Host "Creating SA Account..."
+	New-ADUser -SamAccountName $SAName `
+			   -name "SA_$($User.name)" `
+			   -Department $User.department`
+			   -DisplayName "$($User.Displayname) (Admin Account)" `
+			   -Enabled $true `
+			   -GivenName $User.givenname `
+			   -Title $User.title `
+			   -Surname $User.surname `
+			   -Office $user.physicalDeliveryOfficeName `
+			   -ChangePasswordAtLogon $true `
+			   -Company $User.company `
+			   -Division $User.division `
+			   -Organization $User.organization `
+			   -Path $SA_OU `
+			   -AccountPassword $newpassword
+			
+	Write-Host "Creating fake email address..."
+	$NewEmail = $($User.mail) -replace "@wawa.com", ".admin@wawa.com"
+	Set-ADUser "SA_$username" -Replace  @{ extensionAttribute6 = "$Newemail" }
+	Write-Host "Adding fake email alias to users primary mailbox..."
+	Set-ADUser $Username -Add @{proxyaddresses = "smtp:$newemail"}
+	
+	write-host "Adding SA_ Account to required default groups..."
+	Add-ADGroupMember -Identity "PP_AllAdminAccounts" -Members $SAName
+	Add-ADGroupMember -Identity "SG_SA_VIPAccess" -Members $SAName
+	Write-Host "----------------------------------------------------"
+	Write-Host "The new user password is: $rando"
+	Write-Host " "
+	Write-Host "This is the only time the password will be displayed!"
+	Write-Host "----------------------------------------------------"
+	Read-Host "Press ENTER to continue..."
+	cls
+	
+}
+
+
+
